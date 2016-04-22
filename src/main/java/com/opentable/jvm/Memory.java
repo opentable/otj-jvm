@@ -1,0 +1,79 @@
+package com.opentable.jvm;
+
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.PlatformManagedObject;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+
+import javax.annotation.Nullable;
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
+
+import com.sun.management.DiagnosticCommandMBean;
+import com.sun.management.HotSpotDiagnosticMXBean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import sun.management.ManagementFactoryHelper;
+
+public class Memory {
+    private static final Logger log = LoggerFactory.getLogger(Memory.class);
+    private static final String nmtDisabled = "Native memory tracking is not enabled\n";
+
+    /**
+     * Dumps heap with a name with a human-readable timestamp to the Mesos sandbox.
+     * Logs a warning if there was a problem preventing the heap dump from being successfully created.
+     */
+    public static void dumpHeap() {
+        final String path = String.format("/mnt/mesos/sandbox/heapdump-%s.hprof", Instant.now());
+        dumpHeap(Paths.get(path));
+    }
+
+    /**
+     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * @return Human-readable NMT summary.  null if there was an error getting the summary.
+     */
+    @Nullable
+    public static String formatNmt() {
+        final DiagnosticCommandMBean bean = ManagementFactoryHelper.getDiagnosticCommandMBean();
+        final String ret;
+        try {
+            ret = (String)bean.invoke("vmNativeMemory", new Object[]{new String[]{"summary"}},
+                    new String[]{String[].class.getName()});
+        } catch (MBeanException | ReflectionException e) {
+            log.warn("error invoking native memory tracking", e);
+            return null;
+        }
+        if (nmtDisabled.equals(ret)) {
+            log.warn(ret.trim());
+            return null;
+        }
+        return ret;
+    }
+
+    @Nullable
+    private static <T extends PlatformManagedObject> T getBean(final Class<T> iface) {
+        try {
+            return ManagementFactory.getPlatformMXBean(iface);
+        } catch (IllegalArgumentException e) {
+            log.warn(String.format("error getting bean %s", iface.getCanonicalName()), e);
+            return null;
+        }
+    }
+
+    private static void dumpHeap(final Path path) {
+        final HotSpotDiagnosticMXBean bean = getBean(HotSpotDiagnosticMXBean.class);
+        if (bean == null) {
+            return;
+        }
+        try {
+            bean.dumpHeap(path.toString(), true);
+        } catch (IOException e) {
+            log.warn("error writing heap dump", e);
+        }
+    }
+}

@@ -1,17 +1,18 @@
 package com.opentable.jvm;
 
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 
 import javax.annotation.Nullable;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.management.ReflectionException;
-
-import com.sun.management.DiagnosticCommandMBean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.management.ManagementFactoryHelper;
 
 /**
  * Execute diagnostic commands.
@@ -27,12 +28,18 @@ class Dcmd {
      */
     @Nullable
     static String exec(String cmd, String ...a) {
-        final DiagnosticCommandMBean bean = ManagementFactoryHelper.getDiagnosticCommandMBean();
+        final ObjectName name;
+        try {
+            name = new ObjectName("com.sun.management", "type", "DiagnosticCommand");
+        } catch (MalformedObjectNameException e) {
+            throw new AssertionError("should never happen", e);
+        }
+        final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         final Object[] args = new Object[]{a};
         final String[] signature = new String[]{String[].class.getName()};
         try {
-            return (String)bean.invoke(cmd, args, signature);
-        } catch (MBeanException | ReflectionException e) {
+            return (String)server.invoke(name, cmd, args, signature);
+        } catch (InstanceNotFoundException | MBeanException | ReflectionException e) {
             log.warn(String.format("error invoking diagnostic command %s with args %s", cmd, Arrays.toString(args)), e);
             return null;
         }

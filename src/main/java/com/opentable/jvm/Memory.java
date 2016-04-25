@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Memory {
-    private static final Logger log = LoggerFactory.getLogger(Memory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
     private static final String nmtDisabled = "Native memory tracking is not enabled\n";
 
     /**
@@ -45,7 +45,7 @@ public class Memory {
     public static String formatNmt() {
         final String ret = Dcmd.exec("vmNativeMemory", "summary");
         if (nmtDisabled.equals(ret)) {
-            log.warn(ret.trim());
+            LOG.warn(ret.trim());
             return null;
         }
         return ret;
@@ -53,12 +53,18 @@ public class Memory {
 
     @Nullable
     private static <T extends PlatformManagedObject> T getBean(final Class<T> iface) {
+        final String name = iface.getCanonicalName();
+        T ret;
         try {
-            return ManagementFactory.getPlatformMXBean(iface);
+            ret = ManagementFactory.getPlatformMXBean(iface);
         } catch (IllegalArgumentException e) {
-            log.warn(String.format("error getting bean %s", iface.getCanonicalName()), e);
+            LOG.warn("error getting bean {}", name, e);
             return null;
         }
+        if (ret == null) {
+            LOG.warn("bean {} did not exist", name);
+        }
+        return ret;
     }
 
     private static void dumpHeap(final Path path) {
@@ -69,7 +75,7 @@ public class Memory {
         try {
             bean.dumpHeap(path.toString(), true);
         } catch (IOException e) {
-            log.warn("error writing heap dump", e);
+            LOG.warn("error writing heap dump", e);
         }
     }
 }

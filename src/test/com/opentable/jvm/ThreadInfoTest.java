@@ -1,12 +1,12 @@
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.opentable.jvm.Thread;
+import com.opentable.jvm.ThreadInfo;
 
-public class ThreadTest {
+public class ThreadInfoTest {
     @Test
     public void info() {
-        final String out = Thread.formatInfo();
+        final String out = ThreadInfo.format();
         Assert.assertNotNull(out);
         System.out.print(out);
     }

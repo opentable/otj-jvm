@@ -32,6 +32,10 @@ public class Memory {
     // with statically-typed fields, etc., that we could easily use to make automated NMT graphite, other tracking,
     // etc. application analytics/metrics calls.  Then have formatNmt use that method so there are fewer code paths.
 
+    // TODO Write little NMT poller.
+    // Add a method that kicks off a thread that polls and logs NMT info at some regular (specified?) interval.
+    // It'll return something you can call to shut down the poller.
+
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.

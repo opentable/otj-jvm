@@ -19,6 +19,19 @@
   <artifactId>otj-jvm</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- for MemoryTest.nmt -->
+          <argLine>-XX:NativeMemoryTracking=summary</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>ch.qos.logback</groupId>

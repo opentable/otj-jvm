@@ -8,16 +8,11 @@ import java.nio.file.Paths;
 import java.time.Instant;
 
 import javax.annotation.Nullable;
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
 
-import com.sun.management.DiagnosticCommandMBean;
 import com.sun.management.HotSpotDiagnosticMXBean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.management.ManagementFactoryHelper;
 
 public class Memory {
     private static final Logger log = LoggerFactory.getLogger(Memory.class);
@@ -39,15 +34,7 @@ public class Memory {
      */
     @Nullable
     public static String formatNmt() {
-        final DiagnosticCommandMBean bean = ManagementFactoryHelper.getDiagnosticCommandMBean();
-        final String ret;
-        try {
-            ret = (String)bean.invoke("vmNativeMemory", new Object[]{new String[]{"summary"}},
-                    new String[]{String[].class.getName()});
-        } catch (MBeanException | ReflectionException e) {
-            log.warn("error invoking native memory tracking", e);
-            return null;
-        }
+        final String ret = Dcmd.exec("vmNativeMemory", "summary");
         if (nmtDisabled.equals(ret)) {
             log.warn(ret.trim());
             return null;

@@ -99,14 +99,13 @@ public class Memory {
     private static Path getTmpDir() {
         final String propName = "java.io.tmpdir";
         final String defaultVal = "/tmp";
-        String val;
+        String val = null;
         try {
             val = System.getProperty(propName);
         } catch (NullPointerException | IllegalArgumentException e) {
             throw new AssertionError("should never happen", e);
         } catch (SecurityException e) {
             LOG.warn("error getting system property {}", propName, e);
-            val = defaultVal;
         }
         if (val == null) {
             val = defaultVal;

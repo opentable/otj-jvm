@@ -105,8 +105,6 @@ public class Memory {
         String val = null;
         try {
             val = System.getProperty(propName);
-        } catch (NullPointerException | IllegalArgumentException e) {
-            throw new AssertionError("should never happen", e);
         } catch (SecurityException e) {
             LOG.warn("error getting system property {}", propName, e);
         }
@@ -123,8 +121,6 @@ public class Memory {
         final String envVar;
         try {
             envVar = getenv.apply(envName);
-        } catch (NullPointerException e) {
-            throw new AssertionError("should never happen", e);
         } catch (SecurityException e) {
             LOG.warn("error getting environment variable {}", envName, e);
             return getTmpDir();

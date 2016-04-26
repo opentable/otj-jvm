@@ -7,9 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.sun.management.HotSpotDiagnosticMXBean;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +20,23 @@ import org.slf4j.LoggerFactory;
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
     private static final String nmtDisabled = "Native memory tracking is not enabled\n";
+    @VisibleForTesting
+    static EnvironmentProvider environmentProvider = new EnvironmentProvider() {
+        @Nullable
+        @Override
+        public String getenv(String name) {
+            return System.getenv(name);
+        }
+    };
 
     /**
-     * Dumps heap with a name with a human-readable timestamp to the Mesos sandbox.
+     * Dumps heap with a name with a human-readable timestamp to the Mesos sandbox, if environment variable
+     * MESOS_SANDBOX is defined, or to the system temporary directory otherwise.
      * Logs where the heap dump will be written.
      * Logs a warning if there was a problem preventing the heap dump from being successfully created.
      */
     public static void dumpHeap() {
-        final String path = String.format("/mnt/mesos/sandbox/heapdump-%s.hprof", Instant.now());
-        dumpHeap(Paths.get(path));
+        dumpHeap(getHeapDumpPath());
     }
 
     /**
@@ -85,5 +96,56 @@ public class Memory {
             LOG.warn("bean {} did not exist", name);
         }
         return ret;
+    }
+
+    @Nonnull
+    private static Path getTempDir() {
+        final String propName = "java.io.tmpdir";
+        final String defaultVal = "/tmp";
+        String val;
+        try {
+            val = System.getProperty(propName);
+        } catch (NullPointerException | IllegalArgumentException e) {
+            throw new AssertionError("should never happen", e);
+        } catch (SecurityException e) {
+            LOG.warn("error getting system property {}", propName, e);
+            val = defaultVal;
+        }
+        if (val == null) {
+            val = defaultVal;
+        }
+        return Paths.get(val);
+    }
+
+    @VisibleForTesting
+    @Nonnull
+    static Path getHeapDumpDir() {
+        final String envName = "MESOS_SANDBOX";
+        final String envVar;
+        try {
+            envVar = environmentProvider.getenv(envName);
+        } catch (NullPointerException e) {
+            throw new AssertionError("should never happen", e);
+        } catch (SecurityException e) {
+            LOG.warn("error getting environment variable {}", envName, e);
+            return getTempDir();
+        }
+        if (envVar == null) {
+            return getTempDir();
+        }
+        return Paths.get(envVar);
+    }
+
+    @Nonnull
+    private static Path getHeapDumpPath() {
+        final String filename = String.format("heapdump-%s.hprof", Instant.now());
+        return getHeapDumpDir().resolve(filename);
+    }
+
+    // Replaceable stand-in for System.getenv for testing.
+    @VisibleForTesting
+    interface EnvironmentProvider {
+        @Nullable
+        String getenv(String name);
     }
 }

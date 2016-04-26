@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
-    private static final String nmtDisabled = "Native memory tracking is not enabled\n";
+    private static final String NMT_DISABLED = "Native memory tracking is not enabled\n";
 
     // Replaceable reference for testing.
     @VisibleForTesting
@@ -72,7 +72,7 @@ public class Memory {
     @Nullable
     public static String formatNmt() {
         final String ret = Dcmd.exec("vmNativeMemory", "summary");
-        if (nmtDisabled.equals(ret)) {
+        if (NMT_DISABLED.equals(ret)) {
             LOG.warn(ret.trim());
             return null;
         }

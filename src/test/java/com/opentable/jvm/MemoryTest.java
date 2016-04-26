@@ -37,7 +37,7 @@ public class MemoryTest {
     public void getHeapDumpDirMesos() {
         final String testValue = "/bing/bing/bam/bam";
         final Function<String, String> old = Memory.getenv;
-        Memory.getenv = (final String name) -> {
+        Memory.getenv = name -> {
             if (name.equals("MESOS_SANDBOX")) {
                 return testValue;
             }

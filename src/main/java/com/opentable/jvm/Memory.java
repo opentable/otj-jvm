@@ -5,7 +5,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.PlatformManagedObject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
@@ -14,9 +17,12 @@ import javax.annotation.Nullable;
 import com.sun.management.HotSpotDiagnosticMXBean;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.mogwee.executors.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opentable.concurrent.ExecutorUtil;
 
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
@@ -62,10 +68,6 @@ public class Memory {
     // Add a lower-level method that does the call and then parses the string output into a data structure
     // with statically-typed fields, etc., that we could easily use to make automated NMT graphite, other tracking,
     // etc. application analytics/metrics calls.  Then have formatNmt use that method so there are fewer code paths.
-
-    // TODO Write little NMT poller.
-    // Add a method that kicks off a thread that polls and logs NMT info at some regular (specified?) interval.
-    // It'll return something you can call to shut down the poller.
 
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
@@ -135,5 +137,56 @@ public class Memory {
     private static Path getHeapDumpPath() {
         final String filename = String.format("heapdump-%s.hprof", Instant.now());
         return getHeapDumpDir().resolve(filename);
+    }
+
+    /**
+     * On construction, kicks off a poller thread that will periodically log NMT.
+     * Uses {@link #formatNmt()}, and so also requires JVM argument -XX:NativeMemoryTracking=summary.
+     */
+    public static class NmtPoller implements Runnable {
+        private static final Logger LOG = LoggerFactory.getLogger(NmtPoller.class);
+        private final Duration interval;
+        private final ExecutorService exec;
+        private final AtomicBoolean running;
+
+        /**
+         * @param interval The interval with which to poll and log NMT.
+         */
+        public NmtPoller(final Duration interval) {
+            this.interval = interval;
+            exec = Executors.newSingleThreadExecutor("nmt-poller");
+            running = new AtomicBoolean(true);
+            exec.submit(this);
+        }
+
+        @Override
+        public void run() {
+            while (running.get()) {
+                final String summary = formatNmt();
+                // null return values will cause a warning to get logged without us needing to do so.
+                if (summary != null) {
+                    LOG.info(summary);
+                }
+                try {
+                    Thread.sleep(interval.toMillis());
+                } catch (InterruptedException e) {
+                    LOG.info("interrupted; exiting");
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Initiates shutdown and blocks until the poller completes, or the timeout occurs, or the current
+         * thread is interrupted, whichever happens first.  This can potentially block for twice the given timeout.
+         * It is best for {@code timeout} to exceed {@link #interval}.
+         * @param timeout The amount of time to wait after instructing the poller to shut down.
+         */
+        public void shutdown(final Duration timeout) {
+            running.set(false);
+            if (!ExecutorUtil.shutdownAndAwaitTermination(exec, timeout)) {
+                LOG.warn("did not shut down cleanly");
+            }
+        }
     }
 }

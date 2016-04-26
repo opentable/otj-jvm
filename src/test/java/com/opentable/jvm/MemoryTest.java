@@ -1,6 +1,6 @@
 package com.opentable.jvm;
 
-import javax.annotation.Nullable;
+import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -24,18 +24,14 @@ public class MemoryTest {
     @Test
     public void getHeapDumpDirMesos() {
         final String testValue = "/bing/bing/bam/bam";
-        final Memory.EnvironmentProvider old = Memory.environmentProvider;
-        Memory.environmentProvider = new Memory.EnvironmentProvider() {
-            @Nullable
-            @Override
-            public String getenv(String name) {
-                if (name.equals("MESOS_SANDBOX")) {
-                    return testValue;
-                }
-                throw new AssertionError("unexpected environment inspection");
+        final Function<String, String> old = Memory.getenv;
+        Memory.getenv = (final String name) -> {
+            if (name.equals("MESOS_SANDBOX")) {
+                return testValue;
             }
+            throw new AssertionError("unexpected environment inspection");
         };
         Assert.assertEquals(Memory.getHeapDumpDir().toString(), testValue);
-        Memory.environmentProvider = old;
+        Memory.getenv = old;
     }
 }

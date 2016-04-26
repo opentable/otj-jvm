@@ -6,6 +6,7 @@ import java.lang.management.PlatformManagedObject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,14 +21,10 @@ import org.slf4j.LoggerFactory;
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
     private static final String nmtDisabled = "Native memory tracking is not enabled\n";
+
+    // Replaceable reference for testing.
     @VisibleForTesting
-    static EnvironmentProvider environmentProvider = new EnvironmentProvider() {
-        @Nullable
-        @Override
-        public String getenv(String name) {
-            return System.getenv(name);
-        }
-    };
+    static Function<String, String> getenv = System::getenv;
 
     /**
      * Dumps heap with a name with a human-readable timestamp to the Mesos sandbox, if environment variable
@@ -123,7 +120,7 @@ public class Memory {
         final String envName = "MESOS_SANDBOX";
         final String envVar;
         try {
-            envVar = environmentProvider.getenv(envName);
+            envVar = getenv.apply(envName);
         } catch (NullPointerException e) {
             throw new AssertionError("should never happen", e);
         } catch (SecurityException e) {
@@ -140,12 +137,5 @@ public class Memory {
     private static Path getHeapDumpPath() {
         final String filename = String.format("heapdump-%s.hprof", Instant.now());
         return getHeapDumpDir().resolve(filename);
-    }
-
-    // Replaceable stand-in for System.getenv for testing.
-    @VisibleForTesting
-    interface EnvironmentProvider {
-        @Nullable
-        String getenv(String name);
     }
 }

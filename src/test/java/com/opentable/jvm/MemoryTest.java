@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class MemoryTest {
     @Test
-    public void nmt() {
+    public void formatNmt() {
         final String out = Memory.formatNmt();
         Assert.assertNotNull(out);
         System.out.print(out);

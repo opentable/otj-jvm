@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class ThreadInfoTest {
     @Test
-    public void info() {
+    public void format() {
         final String out = ThreadInfo.format();
         Assert.assertNotNull(out);
         System.out.print(out);

@@ -56,10 +56,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.opentable.components</groupId>
-      <artifactId>otj-executors</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.mogwee</groupId>
       <artifactId>mogwee-executors</artifactId>
       <version>1.2.1</version>

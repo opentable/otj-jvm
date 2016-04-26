@@ -57,8 +57,12 @@ public class MemoryTest {
         try {
             Thread.sleep(toSleep.toMillis());
         } catch (InterruptedException e) {
-            poller.shutdown(aSec);
+            throw new AssertionError("such interrupt");
         }
-        poller.shutdown(aSec);
+        try {
+            poller.shutdown(aSec);
+        } catch (InterruptedException e) {
+            throw new AssertionError("such interrupt");
+        }
     }
 }

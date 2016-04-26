@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
@@ -21,8 +21,6 @@ import com.mogwee.executors.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.opentable.concurrent.ExecutorUtil;
 
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
@@ -147,7 +145,6 @@ public class Memory {
         private static final Logger LOG = LoggerFactory.getLogger(NmtPoller.class);
         private final Duration interval;
         private final ExecutorService exec;
-        private final AtomicBoolean running;
 
         /**
          * @param interval The interval with which to poll and log NMT.
@@ -155,13 +152,12 @@ public class Memory {
         public NmtPoller(final Duration interval) {
             this.interval = interval;
             exec = Executors.newSingleThreadExecutor("nmt-poller");
-            running = new AtomicBoolean(true);
             exec.submit(this);
         }
 
         @Override
         public void run() {
-            while (running.get()) {
+            while (!Thread.currentThread().isInterrupted()) {
                 final String summary = formatNmt();
                 // null return values will cause a warning to get logged without us needing to do so.
                 if (summary != null) {
@@ -170,23 +166,25 @@ public class Memory {
                 try {
                     Thread.sleep(interval.toMillis());
                 } catch (InterruptedException e) {
-                    LOG.info("interrupted; exiting");
+                    Thread.currentThread().interrupt();
+                    LOG.info("interrupted");
                     break;
                 }
             }
+            LOG.info("exiting");
         }
 
         /**
          * Initiates shutdown and blocks until the poller completes, or the timeout occurs, or the current
-         * thread is interrupted, whichever happens first.  This can potentially block for twice the given timeout.
-         * It is best for {@code timeout} to exceed {@link #interval}.
+         * thread is interrupted, whichever happens first.
          * @param timeout The amount of time to wait after instructing the poller to shut down.
+         * @throws InterruptedException If the thread is interrupted while waiting for the poller to shut down.
          */
-        public void shutdown(final Duration timeout) {
-            running.set(false);
-            if (!ExecutorUtil.shutdownAndAwaitTermination(exec, timeout)) {
-                LOG.warn("did not shut down cleanly");
-            }
+        public void shutdown(final Duration timeout) throws InterruptedException {
+            exec.shutdownNow();
+            final long nanos = TimeUnit.SECONDS.toNanos(timeout.getSeconds()) +
+                    TimeUnit.NANOSECONDS.toNanos(timeout.getNano());
+            exec.awaitTermination(nanos, TimeUnit.NANOSECONDS);
         }
     }
 }

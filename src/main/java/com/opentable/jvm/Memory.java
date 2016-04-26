@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -144,34 +144,26 @@ public class Memory {
     public static class NmtPoller implements Runnable {
         private static final Logger LOG = LoggerFactory.getLogger(NmtPoller.class);
         private final Duration interval;
-        private final ExecutorService exec;
+        private final ScheduledExecutorService exec;
 
         /**
          * @param interval The interval with which to poll and log NMT.
          */
         public NmtPoller(final Duration interval) {
             this.interval = interval;
-            exec = Executors.newSingleThreadExecutor("nmt-poller");
-            exec.submit(this);
+            exec = Executors.newSingleThreadScheduledExecutor("nmt-poller");
+            final long nanos = TimeUnit.SECONDS.toNanos(interval.getSeconds()) +
+                    TimeUnit.NANOSECONDS.toNanos(interval.getNano());
+            exec.scheduleWithFixedDelay(this, 0, nanos, TimeUnit.NANOSECONDS);
         }
 
         @Override
         public void run() {
-            while (!Thread.currentThread().isInterrupted()) {
-                final String summary = formatNmt();
-                // null return values will cause a warning to get logged without us needing to do so.
-                if (summary != null) {
-                    LOG.info(summary);
-                }
-                try {
-                    Thread.sleep(interval.toMillis());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOG.info("interrupted");
-                    break;
-                }
+            final String summary = formatNmt();
+            // null return values will cause a warning to get logged without us needing to do so.
+            if (summary != null) {
+                LOG.info(summary);
             }
-            LOG.info("exiting");
         }
 
         /**

@@ -20,6 +20,18 @@ public class MemoryTest {
         Memory.dumpHeap();
     }
 
+    // Not parallel-safe.
+    @Test
+    public void dumpHeapTmpDirDefault() {
+        final String propName = "java.io.tmpdir";
+        final String old = System.clearProperty(propName);
+        if (old == null) {
+            throw new AssertionError("we were going to be the one to kill this");
+        }
+        Assert.assertEquals(Memory.getTmpDir().toString(), Memory.DEFAULT_TMP_PATH);
+        System.setProperty(propName, old);
+    }
+
     // Not parallel-safe.  Probably not worth it to do DI.
     @Test
     public void getHeapDumpDirMesos() {

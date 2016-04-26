@@ -22,6 +22,9 @@ public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
     private static final String NMT_DISABLED = "Native memory tracking is not enabled\n";
 
+    @VisibleForTesting
+    static final String DEFAULT_TMP_PATH = "/tmp";
+
     // Replaceable reference for testing.
     @VisibleForTesting
     static Function<String, String> getenv = System::getenv;
@@ -95,10 +98,10 @@ public class Memory {
         return ret;
     }
 
+    @VisibleForTesting
     @Nonnull
-    private static Path getTmpDir() {
+    static Path getTmpDir() {
         final String propName = "java.io.tmpdir";
-        final String defaultVal = "/tmp";
         String val = null;
         try {
             val = System.getProperty(propName);
@@ -108,7 +111,7 @@ public class Memory {
             LOG.warn("error getting system property {}", propName, e);
         }
         if (val == null) {
-            val = defaultVal;
+            val = DEFAULT_TMP_PATH;
         }
         return Paths.get(val);
     }

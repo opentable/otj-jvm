@@ -27,6 +27,23 @@ public class Memory {
         dumpHeap(Paths.get(path));
     }
 
+    /**
+     * Dumps heap to the specified path.
+     * Logs a warning if there was a problem preventing the heap dump from being successfully created.
+     * @param path Where to put the heap dump.
+     */
+    public static void dumpHeap(final Path path) {
+        final HotSpotDiagnosticMXBean bean = getBean(HotSpotDiagnosticMXBean.class);
+        if (bean == null) {
+            return;
+        }
+        try {
+            bean.dumpHeap(path.toString(), true);
+        } catch (IOException e) {
+            LOG.warn("error writing heap dump", e);
+        }
+    }
+
     // TODO Re-implement formatNmt.
     // Add a lower-level method that does the call and then parses the string output into a data structure
     // with statically-typed fields, etc., that we could easily use to make automated NMT graphite, other tracking,
@@ -65,17 +82,5 @@ public class Memory {
             LOG.warn("bean {} did not exist", name);
         }
         return ret;
-    }
-
-    private static void dumpHeap(final Path path) {
-        final HotSpotDiagnosticMXBean bean = getBean(HotSpotDiagnosticMXBean.class);
-        if (bean == null) {
-            return;
-        }
-        try {
-            bean.dumpHeap(path.toString(), true);
-        } catch (IOException e) {
-            LOG.warn("error writing heap dump", e);
-        }
     }
 }

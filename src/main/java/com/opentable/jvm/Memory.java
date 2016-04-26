@@ -20,6 +20,7 @@ public class Memory {
 
     /**
      * Dumps heap with a name with a human-readable timestamp to the Mesos sandbox.
+     * Logs where the heap dump will be written.
      * Logs a warning if there was a problem preventing the heap dump from being successfully created.
      */
     public static void dumpHeap() {
@@ -29,10 +30,12 @@ public class Memory {
 
     /**
      * Dumps heap to the specified path.
+     * Logs where the heap dump will be written.
      * Logs a warning if there was a problem preventing the heap dump from being successfully created.
      * @param path Where to put the heap dump.
      */
     public static void dumpHeap(final Path path) {
+        LOG.info("writing heap dump to {}", path);
         final HotSpotDiagnosticMXBean bean = getBean(HotSpotDiagnosticMXBean.class);
         if (bean == null) {
             return;

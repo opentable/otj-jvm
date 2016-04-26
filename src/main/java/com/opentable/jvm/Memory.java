@@ -96,7 +96,7 @@ public class Memory {
     }
 
     @Nonnull
-    private static Path getTempDir() {
+    private static Path getTmpDir() {
         final String propName = "java.io.tmpdir";
         final String defaultVal = "/tmp";
         String val;
@@ -125,10 +125,10 @@ public class Memory {
             throw new AssertionError("should never happen", e);
         } catch (SecurityException e) {
             LOG.warn("error getting environment variable {}", envName, e);
-            return getTempDir();
+            return getTmpDir();
         }
         if (envVar == null) {
-            return getTempDir();
+            return getTmpDir();
         }
         return Paths.get(envVar);
     }

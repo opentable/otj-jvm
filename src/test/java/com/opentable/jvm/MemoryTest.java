@@ -50,17 +50,17 @@ public class MemoryTest {
 
     @Ignore
     @Test
-    public void nmtPoller() {
+    public void pollNmt() {
         final Duration aSec = Duration.ofSeconds(1);
         final Duration toSleep = Duration.ofSeconds(3);
-        final Memory.NmtPoller poller = new Memory.NmtPoller(aSec);
+        final Memory.NmtPollerController ctl = Memory.pollNmt(aSec);
         try {
             Thread.sleep(toSleep.toMillis());
         } catch (InterruptedException e) {
             throw new AssertionError("such interrupt");
         }
         try {
-            poller.shutdown(aSec);
+            ctl.shutdown(aSec);
         } catch (InterruptedException e) {
             throw new AssertionError("such interrupt");
         }

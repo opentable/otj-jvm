@@ -143,14 +143,12 @@ public class Memory {
      */
     public static class NmtPoller implements Runnable {
         private static final Logger LOG = LoggerFactory.getLogger(NmtPoller.class);
-        private final Duration interval;
         private final ScheduledExecutorService exec;
 
         /**
          * @param interval The interval with which to poll and log NMT.
          */
         public NmtPoller(final Duration interval) {
-            this.interval = interval;
             exec = Executors.newSingleThreadScheduledExecutor("nmt-poller");
             final long nanos = TimeUnit.SECONDS.toNanos(interval.getSeconds()) +
                     TimeUnit.NANOSECONDS.toNanos(interval.getNano());

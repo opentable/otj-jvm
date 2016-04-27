@@ -82,6 +82,32 @@ public class Memory {
         return ret;
     }
 
+    /**
+     * Kicks off a poller thread that will periodically log NMT.
+     * Uses {@link #formatNmt()} internally, and so also requires JVM argument -XX:NativeMemoryTracking=summary.
+     * @param interval The interval with which to poll and log NMT.
+     * @return {@link NmtPollerController} on which you can call {@code shutdown} to terminate the poller.
+     */
+    public static NmtPollerController pollNmt(final Duration interval) {
+        final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor("nmt-poller");
+        final long intervalNanos = TimeUnit.SECONDS.toNanos(interval.getSeconds()) +
+                TimeUnit.NANOSECONDS.toNanos(interval.getNano());
+        final Runnable command = () -> {
+            final String summary = formatNmt();
+            // null return values will cause a warning to get logged without us needing to do so.
+            if (summary != null) {
+                LOG.info(summary);
+            }
+        };
+        exec.scheduleWithFixedDelay(command, 0, intervalNanos, TimeUnit.NANOSECONDS);
+        return (timeout) -> {
+            exec.shutdownNow();
+            final long timeoutNanos = TimeUnit.SECONDS.toNanos(timeout.getSeconds()) +
+                    TimeUnit.NANOSECONDS.toNanos(timeout.getNano());
+            exec.awaitTermination(timeoutNanos, TimeUnit.NANOSECONDS);
+        };
+    }
+
     @Nullable
     private static <T extends PlatformManagedObject> T getBean(final Class<T> iface) {
         final String name = iface.getCanonicalName();
@@ -137,44 +163,13 @@ public class Memory {
         return getHeapDumpDir().resolve(filename);
     }
 
-    /**
-     * On construction, kicks off a poller thread that will periodically log NMT.
-     * Uses {@link #formatNmt()}, and so also requires JVM argument -XX:NativeMemoryTracking=summary.
-     */
-    public static class NmtPoller implements Runnable {
-        private static final Logger LOG = LoggerFactory.getLogger(NmtPoller.class);
-        private final ScheduledExecutorService exec;
-
-        /**
-         * @param interval The interval with which to poll and log NMT.
-         */
-        public NmtPoller(final Duration interval) {
-            exec = Executors.newSingleThreadScheduledExecutor("nmt-poller");
-            final long nanos = TimeUnit.SECONDS.toNanos(interval.getSeconds()) +
-                    TimeUnit.NANOSECONDS.toNanos(interval.getNano());
-            exec.scheduleWithFixedDelay(this, 0, nanos, TimeUnit.NANOSECONDS);
-        }
-
-        @Override
-        public void run() {
-            final String summary = formatNmt();
-            // null return values will cause a warning to get logged without us needing to do so.
-            if (summary != null) {
-                LOG.info(summary);
-            }
-        }
-
+    public interface NmtPollerController {
         /**
          * Initiates shutdown and blocks until the poller completes, or the timeout occurs, or the current
          * thread is interrupted, whichever happens first.
          * @param timeout The amount of time to wait after instructing the poller to shut down.
          * @throws InterruptedException If the thread is interrupted while waiting for the poller to shut down.
          */
-        public void shutdown(final Duration timeout) throws InterruptedException {
-            exec.shutdownNow();
-            final long nanos = TimeUnit.SECONDS.toNanos(timeout.getSeconds()) +
-                    TimeUnit.NANOSECONDS.toNanos(timeout.getNano());
-            exec.awaitTermination(nanos, TimeUnit.NANOSECONDS);
-        }
+        void shutdown(final Duration timeout) throws InterruptedException;
     }
 }

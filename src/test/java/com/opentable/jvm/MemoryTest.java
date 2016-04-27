@@ -1,6 +1,5 @@
 package com.opentable.jvm;
 
-import java.time.Duration;
 import java.util.function.Function;
 
 import org.junit.Assert;
@@ -46,23 +45,5 @@ public class MemoryTest {
         };
         Assert.assertEquals(Memory.getHeapDumpDir().toString(), testValue);
         Memory.getenv = old;
-    }
-
-    @Ignore
-    @Test
-    public void pollNmt() {
-        final Duration aSec = Duration.ofSeconds(1);
-        final Duration toSleep = Duration.ofSeconds(3);
-        final Memory.NmtPollerController ctl = Memory.pollNmt(aSec);
-        try {
-            Thread.sleep(toSleep.toMillis());
-        } catch (InterruptedException e) {
-            throw new AssertionError("such interrupt");
-        }
-        try {
-            ctl.shutdown(aSec);
-        } catch (InterruptedException e) {
-            throw new AssertionError("such interrupt");
-        }
     }
 }

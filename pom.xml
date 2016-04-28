@@ -4,8 +4,8 @@
 
   <parent>
     <groupId>com.opentable</groupId>
-    <artifactId>otj-parent</artifactId>
-    <version>50</version>
+    <artifactId>otj-parent-oss</artifactId>
+    <version>51</version>
   </parent>
 
   <scm>

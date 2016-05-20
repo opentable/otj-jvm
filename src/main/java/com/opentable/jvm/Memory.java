@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
-    private static final String NMT_DISABLED = "Native memory tracking is not enabled\n";
 
     @VisibleForTesting
     static final String DEFAULT_TMP_PATH = "/tmp";
@@ -99,12 +98,7 @@ public class Memory {
      */
     @Nullable
     public static String formatNmt() {
-        final String ret = Dcmd.invoke("vmNativeMemory", "summary");
-        if (NMT_DISABLED.equals(ret)) {
-            LOG.warn(ret.trim());
-            return null;
-        }
-        return ret;
+        return Nmt.invoke();
     }
 
     /**

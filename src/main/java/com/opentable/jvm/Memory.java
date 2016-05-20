@@ -99,7 +99,7 @@ public class Memory {
      */
     @Nullable
     public static String formatNmt() {
-        final String ret = Dcmd.exec("vmNativeMemory", "summary");
+        final String ret = Dcmd.invoke("vmNativeMemory", "summary");
         if (NMT_DISABLED.equals(ret)) {
             LOG.warn(ret.trim());
             return null;

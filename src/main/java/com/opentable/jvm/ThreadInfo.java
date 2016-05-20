@@ -34,6 +34,6 @@ public class ThreadInfo {
      */
     @Nullable
     public static String format() {
-        return Dcmd.exec("threadPrint", "-l");
+        return Dcmd.invoke("threadPrint", "-l");
     }
 }

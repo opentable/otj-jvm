@@ -63,4 +63,19 @@ public class MemoryTest {
         Assert.assertEquals(Memory.getHeapDumpDir().toString(), testValue);
         Memory.getenv = old;
     }
+
+    @Test
+    public void formatBytes1() {
+        Assert.assertEquals(Memory.formatBytes(1024), "1.00 KiB");
+    }
+
+    @Test
+    public void formatBytes2() {
+        Assert.assertEquals(Memory.formatBytes(20), "20 B");
+    }
+
+    @Test
+    public void formatBytes3() {
+        Assert.assertEquals(Memory.formatBytes(3 * 1024 * 1024), "3.00 MiB");
+    }
 }

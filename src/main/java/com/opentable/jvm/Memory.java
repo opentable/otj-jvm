@@ -133,6 +133,17 @@ public class Memory {
         return exec::shutdownNow;
     }
 
+    static String formatBytes(final long bytes) {
+        final int k = 1024;
+        if (bytes < k) {
+            return bytes + " B";
+        }
+        final int exp = (int)(Math.log(bytes) / Math.log(k));
+        final char unit = "KMGTPEZ".charAt(exp - 1);
+        final double printBytes = bytes / Math.pow(k, exp);
+        return String.format("%.2f %ciB", printBytes, unit);
+    }
+
     @Nullable
     private static <T extends PlatformManagedObject> T getBean(final Class<T> iface) {
         final String name = iface.getCanonicalName();

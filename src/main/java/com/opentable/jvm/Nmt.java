@@ -78,6 +78,11 @@ public class Nmt {
         return ret;
     }
 
+    @Override
+    public String toString() {
+        return new Formatter().toString();
+    }
+
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
@@ -205,6 +210,47 @@ public class Nmt {
         private Usage(final long reserved, final long committed) {
             this.reserved = reserved;
             this.committed = committed;
+        }
+    }
+
+    private class Formatter {
+        @Override
+        public String toString() {
+            final int rows = categories.size() + 2;
+
+            final List<String> col1 = new ArrayList<>(rows);
+            col1.add("Name");
+            col1.add("Total");
+            col1.addAll(categories.keySet());
+            final int colWidth1 = maxLength(col1);
+
+            final List<String> col2 = new ArrayList<>(rows);
+            col2.add("Reserved");
+            col2.add(Memory.formatBytes(total.reserved));
+            categories.keySet().forEach(name -> col2.add(Memory.formatBytes(categories.get(name).reserved)));
+            final int colWidth2 = maxLength(col2);
+
+            final List<String> col3 = new ArrayList<>(rows);
+            col3.add("Committed");
+            col3.add(Memory.formatBytes(total.committed));
+            categories.keySet().forEach(name -> col3.add(Memory.formatBytes(categories.get(name).committed)));
+            final int colWidth3 = maxLength(col3);
+
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < rows; i++) {
+                sb.append(pad(col1, colWidth1, i)).append("  ");
+                sb.append(pad(col2, colWidth2, i)).append("  ");
+                sb.append(pad(col3, colWidth3, i)).append('\n');
+            }
+            return sb.toString();
+        }
+
+        private int maxLength(final List<String> list) {
+            return list.stream().mapToInt(String::length).max().getAsInt();
+        }
+
+        private String pad(final List<String> list, final int width, final int index) {
+            return String.format("%1$" + width + "s", list.get(index));
         }
     }
 }

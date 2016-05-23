@@ -86,11 +86,6 @@ public class Memory {
         }
     }
 
-    // TODO Re-implement formatNmt.
-    // Add a lower-level method that does the call and then parses the string output into a data structure
-    // with statically-typed fields, etc., that we could easily use to make automated NMT graphite, other tracking,
-    // etc. application analytics/metrics calls.  Then have formatNmt use that method so there are fewer code paths.
-
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
@@ -99,7 +94,11 @@ public class Memory {
      */
     @Nullable
     public static String formatNmt() {
-        return Nmt.invoke();
+        final Nmt nmt = Nmt.get();
+        if (nmt == null) {
+            return null;
+        }
+        return nmt.toString();
     }
 
     /**

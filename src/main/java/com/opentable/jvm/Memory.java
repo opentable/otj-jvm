@@ -95,10 +95,21 @@ public class Memory {
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
      * @return Human-readable NMT summary.  null if there was an error getting the summary.
+     * @see #getNmt()
      */
     @Nullable
     public static String formatNmt() {
         return Nmt.invoke();
+    }
+
+    /**
+     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * @return {@link Nmt} instance. null if there was an error getting the summary.
+     */
+    @Nullable
+    public static Nmt getNmt() {
+        return Nmt.get();
     }
 
     /**

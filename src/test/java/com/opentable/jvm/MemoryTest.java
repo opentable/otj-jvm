@@ -38,6 +38,14 @@ public class MemoryTest {
         Assert.assertNotNull(Memory.formatNmt());
     }
 
+    /**
+     * @see NmtTest
+     */
+    @Test
+    public void getNmt() {
+        Assert.assertNotNull(Memory.getNmt());
+    }
+
     // Not parallel-safe.
     @Test
     public void dumpHeapTmpDirDefault() {

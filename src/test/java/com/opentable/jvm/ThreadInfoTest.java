@@ -30,8 +30,6 @@ import org.junit.Test;
 public class ThreadInfoTest {
     @Test
     public void format() {
-        final String out = ThreadInfo.format();
-        Assert.assertNotNull(out);
-        System.out.print(out);
+        Assert.assertNotNull(ThreadInfo.format());
     }
 }

@@ -66,10 +66,11 @@ public class Nmt {
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * Available here in case you want easy access to the raw output from the VM (instead of our nice parse).
      * @return Human-readable NMT summary.  null if there was an error getting the summary.
      */
     @Nullable
-    static String invoke() {
+    public static String invoke() {
         final String ret = Dcmd.invoke("vmNativeMemory", "summary");
         if (NMT_DISABLED.equals(ret)) {
             LOG.warn(ret.trim());

@@ -48,7 +48,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!-- for MemoryTest.nmt -->
+          <!-- for NMT-requiring tests: MemoryTest, NmtTest, etc. -->
           <argLine>-XX:NativeMemoryTracking=summary</argLine>
         </configuration>
       </plugin>

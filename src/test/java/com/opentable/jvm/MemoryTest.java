@@ -30,11 +30,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MemoryTest {
+    /**
+     * @see NmtTest
+     */
     @Test
     public void formatNmt() {
-        final String out = Memory.formatNmt();
-        Assert.assertNotNull(out);
-        System.out.print(out);
+        Assert.assertNotNull(Memory.formatNmt());
     }
 
     // Not parallel-safe.

@@ -51,7 +51,7 @@ class Dcmd {
      * @return The result of the command.  null if there was an error running the command.
      */
     @Nullable
-    static String exec(String cmd, String ...args) {
+    static String invoke(String cmd, String ...args) {
         final ObjectName name;
         try {
             name = new ObjectName("com.sun.management", "type", "DiagnosticCommand");

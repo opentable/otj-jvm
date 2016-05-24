@@ -24,12 +24,13 @@
 
 package com.opentable.jvm;
 
-import org.junit.Assert;
-import org.junit.Test;
+// Requires JVM argument -XX:NativeMemoryTracking=summary.
 
-public class ThreadInfoTest {
-    @Test
-    public void format() {
-        Assert.assertNotNull(ThreadInfo.format());
+public class NmtFormatDemo {
+    public static void main(String[] args) {
+        System.out.println("VM output:");
+        System.out.print(Nmt.invoke());
+        System.out.println("our parsed/formatted version:");
+        System.out.print(Memory.formatNmt());
     }
 }

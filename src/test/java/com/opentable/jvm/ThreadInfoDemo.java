@@ -24,12 +24,8 @@
 
 package com.opentable.jvm;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-public class ThreadInfoTest {
-    @Test
-    public void format() {
-        Assert.assertNotNull(ThreadInfo.format());
+public class ThreadInfoDemo {
+    public static void main(String[] args) {
+        System.out.print(ThreadInfo.format());
     }
 }

@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
-    private static final String NMT_DISABLED = "Native memory tracking is not enabled\n";
 
     @VisibleForTesting
     static final String DEFAULT_TMP_PATH = "/tmp";
@@ -87,24 +86,29 @@ public class Memory {
         }
     }
 
-    // TODO Re-implement formatNmt.
-    // Add a lower-level method that does the call and then parses the string output into a data structure
-    // with statically-typed fields, etc., that we could easily use to make automated NMT graphite, other tracking,
-    // etc. application analytics/metrics calls.  Then have formatNmt use that method so there are fewer code paths.
-
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
      * @return Human-readable NMT summary.  null if there was an error getting the summary.
+     * @see #getNmt()
      */
     @Nullable
     public static String formatNmt() {
-        final String ret = Dcmd.exec("vmNativeMemory", "summary");
-        if (NMT_DISABLED.equals(ret)) {
-            LOG.warn(ret.trim());
+        final Nmt nmt = Nmt.get();
+        if (nmt == null) {
             return null;
         }
-        return ret;
+        return nmt.toString();
+    }
+
+    /**
+     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * @return {@link Nmt} instance. null if there was an error getting the summary.
+     */
+    @Nullable
+    public static Nmt getNmt() {
+        return Nmt.get();
     }
 
     /**
@@ -126,6 +130,17 @@ public class Memory {
         };
         exec.scheduleWithFixedDelay(command, 0, intervalNanos, TimeUnit.NANOSECONDS);
         return exec::shutdownNow;
+    }
+
+    static String formatBytes(final long bytes) {
+        final int k = 1024;
+        if (bytes < k) {
+            return bytes + " B";
+        }
+        final int exp = (int)(Math.log(bytes) / Math.log(k));
+        final char unit = "KMGTPEZ".charAt(exp - 1);
+        final double printBytes = bytes / Math.pow(k, exp);
+        return String.format("%.2f %ciB", printBytes, unit);
     }
 
     @Nullable

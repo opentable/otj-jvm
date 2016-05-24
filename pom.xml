@@ -28,7 +28,7 @@
   <parent>
     <groupId>com.opentable</groupId>
     <artifactId>otj-parent-oss</artifactId>
-    <version>51</version>
+    <version>52</version>
   </parent>
 
   <scm>
@@ -40,7 +40,7 @@
 
   <groupId>com.opentable.components</groupId>
   <artifactId>otj-jvm</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <build>
     <plugins>
@@ -48,7 +48,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!-- for MemoryTest.nmt -->
+          <!-- for NMT-requiring tests: MemoryTest, NmtTest, etc. -->
           <argLine>-XX:NativeMemoryTracking=summary</argLine>
         </configuration>
       </plugin>
@@ -60,6 +60,7 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <scope>runtime</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

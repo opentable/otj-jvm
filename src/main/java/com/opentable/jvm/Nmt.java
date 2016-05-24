@@ -157,7 +157,7 @@ public class Nmt {
 
         final List<String> lines = Arrays.asList(nmt.split("\n"));
         if (lines.size() < 5) {
-            throw new IllegalArgumentException("insufficient lines to parse");
+            throw new IllegalArgumentException(String.format("insufficient lines to parse: %s", lines));
         }
         final Iterator<String> itr = lines.iterator();
         final String totalStr;

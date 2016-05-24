@@ -77,6 +77,11 @@ public class NmtTest {
         Assert.assertEquals(nmt.categories.get("Class").committed, 18885 * Nmt.K);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void parseTooFewLines() {
+        Nmt.parse("a\nb");
+    }
+
     @Test
     public void get() {
         validate(Nmt.get());

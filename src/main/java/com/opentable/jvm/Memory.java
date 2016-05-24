@@ -125,7 +125,7 @@ public class Memory {
             final String summary = formatNmt();
             // null return values will cause a warning to get logged without us needing to do so.
             if (summary != null) {
-                LOG.info(summary);
+                LOG.info("\n" + summary);
             }
         };
         exec.scheduleWithFixedDelay(command, 0, intervalNanos, TimeUnit.NANOSECONDS);

@@ -89,6 +89,7 @@ public class Memory {
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * This warning will be logged only once per process instance.
      * @return Human-readable NMT summary.  null if there was an error getting the summary.
      * @see #getNmt()
      */
@@ -104,6 +105,7 @@ public class Memory {
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * This warning will be logged only once per process instance.
      * @return {@link Nmt} instance. null if there was an error getting the summary.
      */
     @Nullable

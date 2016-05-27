@@ -46,6 +46,11 @@ import org.slf4j.LoggerFactory;
 public class Nmt {
     private static final Logger LOG = LoggerFactory.getLogger(Nmt.class);
     private static final String NMT_DISABLED = "Native memory tracking is not enabled\n";
+
+    // We warn only once to avoid cluttering the logs.  E.g., consider the use case when otj-metrics repeatedly
+    // tries to get NMT stats, but it's disabled.
+    private static boolean NMT_DISABLED_DID_WARN = false;
+
     // Data comes back in "KB", as formatted by the HotSpot VM.
     // However, a read of the source code (specifically share/vm/utilities/globalDefinitions.hpp)
     // reveals that they actually mean KiB.
@@ -66,6 +71,7 @@ public class Nmt {
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * This warning will be logged only once per process instance.
      * Available here in case you want easy access to the raw output from the VM (instead of our nice parse).
      * @return Human-readable NMT summary.  null if there was an error getting the summary.
      */
@@ -73,7 +79,10 @@ public class Nmt {
     public static String invoke() {
         final String ret = Dcmd.invoke("vmNativeMemory", "summary");
         if (NMT_DISABLED.equals(ret)) {
-            LOG.warn(ret.trim());
+            if (!NMT_DISABLED_DID_WARN) {
+                LOG.warn(ret.trim());
+                NMT_DISABLED_DID_WARN = true;
+            }
             return null;
         }
         return ret;
@@ -87,6 +96,7 @@ public class Nmt {
     /**
      * Requires JVM argument -XX:NativeMemoryTracking=summary.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
+     * This warning will be logged only once per process instance.
      * @return null if there was an error getting the summary.
      */
     @Nullable

@@ -47,6 +47,9 @@ import com.mogwee.executors.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Memory usage inspection routines.
+ */
 public class Memory {
     private static final Logger LOG = LoggerFactory.getLogger(Memory.class);
 
@@ -57,9 +60,11 @@ public class Memory {
     @VisibleForTesting
     static Function<String, String> getenv = System::getenv;
 
+    private Memory() {}
+
     /**
      * Dumps heap with a name with a human-readable timestamp to the Mesos sandbox, if environment variable
-     * MESOS_SANDBOX is defined, or to the system temporary directory otherwise.
+     * {@code MESOS_SANDBOX} is defined, or to the system temporary directory otherwise.
      * Logs where the heap dump will be written.
      * Logs a warning if there was a problem preventing the heap dump from being successfully created.
      */
@@ -87,9 +92,11 @@ public class Memory {
     }
 
     /**
-     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Requires JVM argument {@code -XX:NativeMemoryTracking=summary}.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
      * This warning will be logged only once per process instance.
+     * Produces simpler and more concise human-readable summary of NMT than the native human-readable output from the
+     * JVM.
      * @return Human-readable NMT summary.  null if there was an error getting the summary.
      * @see #getNmt()
      */
@@ -103,7 +110,7 @@ public class Memory {
     }
 
     /**
-     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Requires JVM argument {@code -XX:NativeMemoryTracking=summary}.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
      * This warning will be logged only once per process instance.
      * @return {@link Nmt} instance. null if there was an error getting the summary.
@@ -114,8 +121,9 @@ public class Memory {
     }
 
     /**
-     * Kicks off a poller thread that will periodically log NMT.
-     * Uses {@link #formatNmt()} internally, and so also requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Kicks off a poller thread that will periodically log human-readable NMT.
+     * Uses {@link #formatNmt()} internally, and so also requires JVM argument
+     * {@code -XX:NativeMemoryTracking=summary}.
      * @param interval The interval with which to poll and log NMT.
      * @return {@link NmtCloseable} that you can use to terminate the poller.
      */
@@ -200,6 +208,9 @@ public class Memory {
         return getHeapDumpDir().resolve(filename);
     }
 
+    /**
+     * Returned by {@link #pollNmt(Duration)} call to facilitate poller shutdown.
+     */
     public interface NmtCloseable extends Closeable {
         /**
          * Initiates immediate shutdown of the poller.

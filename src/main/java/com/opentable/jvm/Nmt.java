@@ -47,20 +47,26 @@ public class Nmt {
     private static final Logger LOG = LoggerFactory.getLogger(Nmt.class);
     private static final String NMT_DISABLED = "Native memory tracking is not enabled\n";
 
-    // We warn only once to avoid cluttering the logs.  E.g., consider the use case when otj-metrics repeatedly
-    // tries to get NMT stats, but it's disabled.
+    /**
+     * We warn only once to avoid cluttering the logs.  E.g., consider the use case when otj-metrics repeatedly
+     * tries to get NMT stats, but it's disabled.
+     */
     private static boolean NMT_DISABLED_DID_WARN = false;
 
-    // Data comes back in "KB", as formatted by the HotSpot VM.
-    // However, a read of the source code (specifically share/vm/utilities/globalDefinitions.hpp)
-    // reveals that they actually mean KiB.
+    /**
+     * Data comes back in "KB", as formatted by the HotSpot VM.
+     * However, a read of the source code (specifically share/vm/utilities/globalDefinitions.hpp)
+     * reveals that they actually mean KiB.
+     */
     @VisibleForTesting
     static final long K = 1024;
 
     public final Usage total;
-    // Keys are human-readable category names, such as "Java Heap" or "Arena Chunk".
-    // Categories' usages are not guaranteed to sum to total usage.
-    // Entries will be in the same order as the diagnostic command output.
+    /**
+     * Keys are human-readable category names, such as "Java Heap" or "Arena Chunk".
+     * Categories' usages are not guaranteed to sum to total usage.
+     * Entries will be in the same order as the diagnostic command output.
+     */
     public final Map<String, Usage> categories;
 
     private Nmt(final Usage total, final Map<String, Usage> categories) {
@@ -69,11 +75,12 @@ public class Nmt {
     }
 
     /**
-     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Requires JVM argument {@code -XX:NativeMemoryTracking=summary}.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
      * This warning will be logged only once per process instance.
      * Available here in case you want easy access to the raw output from the VM (instead of our nice parse).
-     * @return Human-readable NMT summary.  null if there was an error getting the summary.
+     * Like {@code jcmd VM.native_memory summary}.
+     * @return JVM-formatted human-readable NMT summary.  null if there was an error getting the summary.
      */
     @Nullable
     public static String invoke() {
@@ -88,13 +95,18 @@ public class Nmt {
         return ret;
     }
 
+    /**
+     * Produces simpler and more concise human-readable summary of NMT than the native human-readable output from the
+     * JVM.
+     * @return Human-readable NMT summary.
+     */
     @Override
     public String toString() {
         return new Formatter().toString();
     }
 
     /**
-     * Requires JVM argument -XX:NativeMemoryTracking=summary.
+     * Requires JVM argument {@code -XX:NativeMemoryTracking=summary}.
      * Logs a warning if there was an error getting the NMT summary or if NMT was disabled.
      * This warning will be logged only once per process instance.
      * @return null if there was an error getting the summary.

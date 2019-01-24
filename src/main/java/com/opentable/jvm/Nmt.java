@@ -134,7 +134,9 @@ public class Nmt {
     static Usage parseUsage(final String s) {
         final String reservedLabel = "reserved=";
         final String firstKB = "KB, ";
-        int i, j;
+        int i;
+        int j;
+
         i = s.indexOf(reservedLabel);
         if (i == -1) {
             throw new IllegalArgumentException("could not find reserved label");
@@ -148,7 +150,7 @@ public class Nmt {
         try {
             reserved = Long.parseLong(reservedStr) * K;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(String.format("could not parse reserved %s", reservedStr));
+            throw new IllegalArgumentException(String.format("could not parse reserved %s", reservedStr), e);
         }
         final String committedLabel = "committed=";
         i = s.indexOf(committedLabel, j + firstKB.length());
@@ -161,7 +163,7 @@ public class Nmt {
         try {
             committed = Long.parseLong(committedStr) * K;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(String.format("could not parse committed %s", committedStr));
+            throw new IllegalArgumentException(String.format("could not parse committed %s", committedStr), e);
         }
         return new Usage(reserved, committed);
     }
@@ -214,7 +216,7 @@ public class Nmt {
             try {
                 usage = parseUsage(s.substring(i + prefixParen.length()));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(String.format("could not parse usage on line %d", line));
+                throw new IllegalArgumentException(String.format("could not parse usage on line %d", line), e);
             }
             categories.put(category, usage);
         }
@@ -230,7 +232,7 @@ public class Nmt {
     public static class Usage {
         public final long reserved;
         public final long committed;
-        private Usage(final long reserved, final long committed) {
+        public Usage(final long reserved, final long committed) {
             this.reserved = reserved;
             this.committed = committed;
         }

@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 /**
  * Thread information.
  */
-public class ThreadInfo {
+public class ThreadInfo { //NOPMD
     private ThreadInfo() {}
 
     /**

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Execute diagnostic commands.
  */
-class Dcmd {
+class Dcmd { //NOPMD
     private static final Logger LOG = LoggerFactory.getLogger(Dcmd.class);
 
     /**

@@ -29,7 +29,8 @@ import javax.annotation.Nullable;
 /**
  * Thread information.
  */
-public class ThreadInfo { //NOPMD
+@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
+public class ThreadInfo {
     private ThreadInfo() {}
 
     /**

@@ -41,7 +41,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Execute diagnostic commands.
  */
-class Dcmd { //NOPMD
+@SuppressWarnings("PMD.UseUtilityClass")
+class Dcmd {
     private static final Logger LOG = LoggerFactory.getLogger(Dcmd.class);
 
     /**
@@ -59,8 +60,8 @@ class Dcmd { //NOPMD
             throw new AssertionError("should never happen", e);
         }
         final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        final Object[] wrappedArgs = new Object[]{args};
-        final String[] signature = new String[]{String[].class.getName()};
+        final Object[] wrappedArgs = {args};
+        final String[] signature = {String[].class.getName()};
         try {
             return (String)server.invoke(name, cmd, wrappedArgs, signature);
         } catch (InstanceNotFoundException | MBeanException | ReflectionException e) {

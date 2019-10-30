@@ -42,6 +42,12 @@
   <artifactId>otj-jvm</artifactId>
   <version>1.1.5-SNAPSHOT</version>
 
+  <properties>
+    <basepom.oss.skip-scala-doc>true</basepom.oss.skip-scala-doc>
+    <basepom.check.skip-javadoc>false</basepom.check.skip-javadoc>
+    <basepom.check.fail-javadoc>false</basepom.check.fail-javadoc>
+  </properties>
+
   <build>
     <plugins>
       <plugin>

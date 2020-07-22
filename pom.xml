@@ -28,7 +28,7 @@
   <parent>
     <groupId>com.opentable</groupId>
     <artifactId>otj-parent-spring</artifactId>
-    <version>9999-SNAPSHOT</version>
+    <version>253</version>
   </parent>
 
   <scm>
@@ -46,6 +46,7 @@
     <basepom.oss.skip-scala-doc>true</basepom.oss.skip-scala-doc>
     <basepom.check.skip-javadoc>false</basepom.check.skip-javadoc>
     <basepom.check.fail-javadoc>false</basepom.check.fail-javadoc>
+    <mogwee-executors.version>1.2.1</mogwee-executors.version>
   </properties>
 
   <build>
@@ -85,7 +86,7 @@
     <dependency>
       <groupId>com.mogwee</groupId>
       <artifactId>mogwee-executors</artifactId>
-      <version>1.2.1</version>
+      <version>${mogwee-executors.version}</version>
     </dependency>
   </dependencies>
 </project>

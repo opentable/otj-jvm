@@ -57,6 +57,7 @@ public class Memory {
     static final String DEFAULT_TMP_PATH = "/tmp";
 
     // Replaceable reference for testing.
+    @SuppressWarnings({"PMD.MutableStaticState"})
     @VisibleForTesting
     static Function<String, String> getenv = System::getenv;
 

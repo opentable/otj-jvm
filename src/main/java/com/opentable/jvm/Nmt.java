@@ -195,12 +195,14 @@ public class Nmt {
                 break;
             }
         }
+        // Remove assumption of lines - it can have extra lines in Java 17
+        // This still has the weakish assumption that Total: is the first category
         //itr.next(); // First line expected to be empty.
         //itr.next(); // Second line expected to be "Native Memory Tracking:".
         //itr.next(); // Third line expected to be empty.
         //totalStr = itr.next();
         if (!foundTotal) {
-            throw new IllegalArgumentException("first line is not total");
+            throw new IllegalArgumentException("could not find " + prefixTotal + " as prefix in file.");
         }
         final Usage total;
         try {

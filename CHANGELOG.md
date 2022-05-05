@@ -1,3 +1,7 @@
+5.2.2
+-----
+* Fix NMT parsing for JVMS (broke somewhere in Java 12+)
+
 5.2.1
 -----
 * Parent POM-328 [changes see here]( https://github.com/opentable/otj-parent/blob/master/CHANGELOG.md#328)

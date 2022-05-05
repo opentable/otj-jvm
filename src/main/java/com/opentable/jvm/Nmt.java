@@ -184,12 +184,22 @@ public class Nmt {
             throw new IllegalArgumentException(String.format("insufficient lines to parse: %s", lines));
         }
         final Iterator<String> itr = lines.iterator();
-        final String totalStr;
-        itr.next(); // First line expected to be empty.
-        itr.next(); // Second line expected to be "Native Memory Tracking:".
-        itr.next(); // Third line expected to be empty.
-        totalStr = itr.next();
-        if (!totalStr.startsWith(prefixTotal)) {
+        String totalStr = null;
+        boolean foundTotal = false;
+        // Loop through until we hit Total or EOF
+        while(itr.hasNext()) {
+            String prologueDump = itr.next();
+            if ((prologueDump != null) && (prologueDump.startsWith(prefixTotal))) {
+                foundTotal = true;
+                totalStr = prologueDump;
+                break;
+            }
+        }
+        //itr.next(); // First line expected to be empty.
+        //itr.next(); // Second line expected to be "Native Memory Tracking:".
+        //itr.next(); // Third line expected to be empty.
+        //totalStr = itr.next();
+        if (!foundTotal) {
             throw new IllegalArgumentException("first line is not total");
         }
         final Usage total;

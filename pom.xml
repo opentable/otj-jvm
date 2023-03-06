@@ -35,12 +35,12 @@
     <connection>scm:git:git://github.com/opentable/otj-jvm.git</connection>
     <developerConnection>scm:git:git@github.com:opentable/otj-jvm.git</developerConnection>
     <url>http://github.com/opentable/otj-jvm</url>
-    <tag>otj-jvm-6.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <groupId>com.opentable.components</groupId>
   <artifactId>otj-jvm</artifactId>
-  <version>6.0.0</version>
+  <version>6.0.1-SNAPSHOT</version>
 
   <properties>
     <basepom.oss.skip-scala-doc>true</basepom.oss.skip-scala-doc>

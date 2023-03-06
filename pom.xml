@@ -28,7 +28,7 @@
   <parent>
     <groupId>com.opentable</groupId>
     <artifactId>otj-parent-spring</artifactId>
-    <version>361-SNAPSHOT</version>
+    <version>362</version>
   </parent>
 
   <scm>
@@ -40,13 +40,17 @@
 
   <groupId>com.opentable.components</groupId>
   <artifactId>otj-jvm</artifactId>
-  <version>5.2.3-SNAPSHOT</version>
+  <version>6.0.0-SNAPSHOT</version>
 
   <properties>
     <basepom.oss.skip-scala-doc>true</basepom.oss.skip-scala-doc>
     <basepom.check.skip-javadoc>false</basepom.check.skip-javadoc>
     <basepom.check.fail-javadoc>false</basepom.check.fail-javadoc>
     <mogwee-executors.version>1.2.1</mogwee-executors.version>
+    <!-- override jetty9 in parent 9 in old pom TODO: REMOVE ON PARENT UPDATE -->
+    <dep.jetty.version>10.0.12.1</dep.jetty.version>
+    <dep.jetty-server.version>10.0.12</dep.jetty-server.version>
+    <!-- override end -->
   </properties>
 
   <build>
